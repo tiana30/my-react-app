@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import CoursesList from './coursesList';
 import Search from './Search.js'
 
-const courses = [
+const courses_data = [
   {
     id:1,
     title: "React - The Complete Guide (incl Hooks, React Router, Redux)",
@@ -34,6 +34,17 @@ const courses = [
 ];
 
 const App = () => {
+
+  const getCoursesAsync = () =>
+  new Promise(resolve =>
+    setTimeout(
+      () => resolve({courses: courses_data}),
+      2000
+    )
+  );
+
+  const [courses, setCourses] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState(
     localStorage.getItem('searchText') || '');
 
@@ -44,7 +55,15 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem('searchText', searchText)
   }, [searchText]);
-  
+
+  useEffect(() => {
+    setIsLoading(true);
+    getCoursesAsync().then(result => {
+      setCourses(result.courses);
+      setIsLoading(false);
+    });
+  }, []);
+
   const filteredCourses = courses.filter(course => {
     return course.title.includes(searchText) || course.author.includes(searchText);
   });
@@ -58,7 +77,12 @@ const App = () => {
       value={searchText}
       onSearch={handleSearch} />
       
-      <CoursesList courses={filteredCourses} />
+      {isLoading ? (
+        <p>Loading Courses ...</p>
+      ) : ( 
+        <CoursesList courses={filteredCourses} />
+      )}
+     
 
     </div>
     ); 
