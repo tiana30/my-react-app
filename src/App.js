@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useReducer} from 'react';
 import CoursesList from './coursesList';
 import Search from './Search.js'
 
@@ -33,7 +33,25 @@ const courses_data = [
   }
 ];
 
+const coursesReducer = (state, action) => {
+  switch(action.type) {
+    case 'SET_COURSES':
+      return action.payload;
+    default:
+      throw new Error();
+  }
+}
+
 const App = () => {
+
+  const [courses, dispatchCourses] = useReducer(coursesReducer, []);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchText, setSearchText] = useState(
+    localStorage.getItem('searchText') || '');
+
+  const handleSearch = event => {
+    setSearchText(event.target.value);
+  }
 
   const getCoursesAsync = () =>
   new Promise(resolve =>
@@ -43,26 +61,20 @@ const App = () => {
     )
   );
 
-  const [courses, setCourses] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchText, setSearchText] = useState(
-    localStorage.getItem('searchText') || '');
-
-  const handleSearch = event => {
-    setSearchText(event.target.value);
-  }
-
-  useEffect(() => {
-    localStorage.setItem('searchText', searchText)
-  }, [searchText]);
-
   useEffect(() => {
     setIsLoading(true);
     getCoursesAsync().then(result => {
-      setCourses(result.courses);
+      dispatchCourses({
+        type:'SET_COURSES',
+        payload: result.courses
+      });
       setIsLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('searchText', searchText)
+  },[searchText]);
 
   const filteredCourses = courses.filter(course => {
     return course.title.includes(searchText) || course.author.includes(searchText);
