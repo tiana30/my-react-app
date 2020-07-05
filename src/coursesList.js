@@ -1,7 +1,7 @@
 import React from 'react';
 
-const CoursesList = (props) => {
-    return props.courses.map( course => {
+const CoursesList = ({courses}) => {
+    return courses.map( course => {
         return(
         <div key={course.id}>
             <span>
