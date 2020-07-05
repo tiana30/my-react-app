@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import CoursesList from './coursesList';
 import Search from './Search.js'
 
@@ -34,12 +34,17 @@ const courses = [
 ];
 
 const App = () => {
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState(
+    localStorage.getItem('searchText') || '');
 
   const handleSearch = event => {
     setSearchText(event.target.value);
   }
 
+  useEffect(() => {
+    localStorage.setItem('searchText', searchText)
+  }, [searchText]);
+  
   const filteredCourses = courses.filter(course => {
     return course.title.includes(searchText) || course.author.includes(searchText);
   });
@@ -49,7 +54,9 @@ const App = () => {
       <h1>List of Courses</h1>
       <hr />
       
-      <Search onSearch={handleSearch} />
+      <Search 
+      value={searchText}
+      onSearch={handleSearch} />
       
       <CoursesList courses={filteredCourses} />
 
