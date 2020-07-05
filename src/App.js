@@ -37,10 +37,16 @@ const coursesReducer = (state, action) => {
   switch(action.type) {
     case 'SET_COURSES':
       return action.payload;
+    case 'REMOVE_COURSES':
+      return state.filter(
+        course => action.payload.id === course.id
+      );
     default:
       throw new Error();
   }
 }
+
+
 
 const App = () => {
 
@@ -76,9 +82,18 @@ const App = () => {
     localStorage.setItem('searchText', searchText)
   },[searchText]);
 
+  const handleRemoveCourse = course => {
+    dispatchCourses({
+      type: 'REMOVE_COURSE',
+      payload: course
+    });
+  }
+
   const filteredCourses = courses.filter(course => {
     return course.title.includes(searchText) || course.author.includes(searchText);
   });
+
+
 
     return (
       <div>
@@ -92,7 +107,7 @@ const App = () => {
       {isLoading ? (
         <p>Loading Courses ...</p>
       ) : ( 
-        <CoursesList courses={filteredCourses} />
+        <CoursesList courses={filteredCourses} handleRemoveCourse={handleRemoveCourse} />
       )}
      
 
